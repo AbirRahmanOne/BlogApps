@@ -1,0 +1,25 @@
+{
+  "name": "blogapps",
+  "version": "1.0.0",
+  "description": "Blog applications using Nodejs.",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbirRahmanOne/BlogApps.git"
+  },
+  "author": "AbirRahman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AbirRahmanOne/BlogApps/issues"
+  },
+  "homepage": "https://github.com/AbirRahmanOne/BlogApps#readme",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.7"
+  }
+}
