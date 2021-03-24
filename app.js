@@ -14,80 +14,88 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then( (result) => app.listen(port))
     .catch( err => console.log(err)) ;
 
-
-
-// mongoose & mongo tests
-app.get('/createBlog', (req, res)=>{
-    const blog = new Blog({
-        title: 'new Blog 4',
-        snippet: 'About my new blogs 2',
-        body: 'More about my test new blogs...'
-    })
-
-    blog.save()
-        .then( result =>{
-            res.send(result) ;
-        })
-        .catch( err => {
-            console.log(err);
-        });
-})
-
-app.get('/blogs', (req, res)=>{
-    Blog.find()
-        .then( result => {
-            res.send(result);
-        })
-        .catch(err => {
-            console.log(err);
-        })
-})
-
-app.get('/blog/id', (req, res)=>{
-    Blog.findById("605a3e8723d2ac1756301deb")
-        .then(result =>{
-            res.send(result);
-        })
-        .catch( err => {
-            console.log(err) ;
-        })
-})
-
-
-
 //register view engine
 app.set('view engine', 'ejs') ;
 
 // middleware & static files
 app.use(express.static('public')) ;
-
-
-
-
-
-
+app.use(express.urlencoded({extended: true})) ;
 app.use(morgan('dev')) ;
 
-app.get('/', (req, res)=>{
-    const blogs = [
-        {title: 'Yoshi finds eggs', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-        {title: 'Mario finds stars', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-        {title: 'How to defeat bowser', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-    ];
 
-    res.render('index', { title: 'Home', blogs });
-});
-
+// routes
 app.get('/about', (req,res)=>{
     res.render('about', {title: 'About'});
 })
 
-
+// blog routes
 app.get('/blogs/create', (req, res) => {
     res.render('create', { title: 'Create a new blog' });
   });
+  
+
+app.get('/', (req, res)=>{
+    res.redirect('/blogs')
+})
 
 
+app.get('/blogs', (req, res)=>{
+    Blog.find().sort({ createdAt: -1 })
+        .then( (result)=>{
+            res.render('index', {title: 'Home', blogs: result } )
+        })
+        .catch( (err)=> {
+            console.log(err);
+        })
+    
+})
+
+
+
+// Post request : creating new blog 
+app.post('/blogs', (req, res)=>{
+    const blog = new Blog(req.body) ;
+
+    blog.save()
+        .then( (result)=>{
+            console.log('Data successfully saved..');
+            res.redirect('/');
+        })
+        .catch( (err)=>{
+            console.log(err);
+        })
+})
+
+
+
+app.get('/blogs/:id', (req, res)=>{
+    const id = req.params.id ;
+    Blog.findById(id)
+        .then(data =>{
+            res.render('details', {title: "Blog Details", blog: data} )
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+})
+
+
+
+
+
+app.delete('/blogs/:id', (req, res)=>{
+    const id  = req.params.id ;
+
+    Blog.findByIdAndDelete(id)
+        .then( data =>{
+            res.json( {
+                redirect : '/blogs'
+            });
+        })
+        .catch( err => {
+            console.log(err);
+        });
+});
 // 404 pages
 app.use( (req, res)=>{
     res.render('404');
